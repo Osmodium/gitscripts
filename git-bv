@@ -1,0 +1,53 @@
+#!/bin/bash
+
+branches=`git branch -a --format="%(refname:lstrip=2)" | paste -s -d ' '`
+
+len=0
+
+for branch in $branches; do
+	branchchars=${#branch}
+	if [ $branchchars -gt $len ]; then
+		len=$branchchars
+	fi
+done
+
+length=$((len+5))
+
+fmt="%(HEAD) \
+%(align:$length,left)\
+%(if)%(HEAD)%(then)\
+%(color:green)%(refname:lstrip=2)%(color:reset)\
+%(else)\
+%(if)%(upstream)%(then)\
+%(color:white)%(refname:lstrip=2)%(color:reset)\
+%(else)\
+%(color:red)%(refname:lstrip=2)%(color:reset)\
+%(end)\
+%(end)\
+%(end)\
+%(align:12,left)\
+%(if)%(symref)%(then)\
+%(color:green)->%(color:reset)\
+%(else)\
+%(color:yellow)%(objectname:short=7)%(color:reset) \
+%(end)\
+%(end)\
+%(if)%(symref)%(then)\
+%(color:blue)%(symref:lstrip=2) %(color:reset)\
+%(else)\
+%(if)%(upstream)%(then)\
+[\
+%(color:blue)%(upstream:lstrip=2)%(color:reset)\
+%(if)%(upstream:track)%(then)\
+: \
+%(color:yellow bold)%(upstream:track,nobracket)%(color:reset)\
+%(end)\
+] \
+%(end)\
+%(contents:subject) \
+<\
+%(color:green)%(authorname)%(color:reset)\
+>\
+%(end)"
+
+git branch -a --format="$fmt"
